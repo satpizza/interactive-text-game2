@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная игра</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game">
+        <div id="story" class="content">
+            <p>Вы просыпаетесь в темной комнате. Перед вами дверь. Что вы будете делать?</p>
+        </div>
+        <button class="button" onclick="nextChoice('door')">Открыть дверь</button>
+        <button class="button" onclick="nextChoice('stay')">Остаться на месте</button>
+    </div>
+
+    <script>
+        let story = {
+            start: "Вы просыпаетесь в темной комнате. Перед вами дверь. Что вы будете делать?",
+            choices: {
+                door: {
+                    text: "Вы открываете дверь и выходите в коридор.",
+                    next: "corridor"
+                },
+                stay: {
+                    text: "Вы решаете остаться на месте. Вдруг дверь открывается сама.",
+                    next: "stayRoom"
+                }
+            },
+            corridor: {
+                text: "В коридоре темно и страшно. Дальше только два пути.",
+                choices: {
+                    left: {
+                        text: "Повернуть налево",
+                        next: "leftPath"
+                    },
+                    right: {
+                        text: "Повернуть направо",
+                        next: "rightPath"
+                    }
+                }
+            },
+            stayRoom: {
+                text: "Комната начинает медленно заполняться дымом. Вы чувствуете, что нужно действовать.",
+                choices: {
+                    escape: {
+                        text: "Попробовать сбежать через окно",
+                        next: "escapeRoom"
+                    },
+                    wait: {
+                        text: "Ждать, пока дым не исчезнет",
+                        next: "waitRoom"
+                    }
+                }
+            },
+            leftPath: {
+                text: "Вы нашли выход! Но это было слишком опасно. Вы спасены!",
+                ending: true
+            },
+            rightPath: {
+                text: "Вы заблудились и попали в ловушку. Это конец.",
+                ending: true
+            },
+            escapeRoom: {
+                text: "Вы выбрались через окно, но на улице вас ждали неприятности.",
+                ending: true
+            },
+            waitRoom: {
+                text: "Дым исчезает, но вы теряете много времени. Это было неудачное решение.",
+                ending: true
+            }
+        };
+
+        let currentState = "start";
+
+        function nextChoice(choice) {
+            if (story[currentState].choices && story[currentState].choices[choice]) {
+                currentState = story[currentState].choices[choice].next;
+                updateStory();
+            } else if (story[currentState].ending) {
+                alert(story[currentState].text);
+                endGame();
+            } else {
+                alert("Ошибка: не найдено выбора!");
+            }
+        }
+
+        function updateStory() {
+            const content = story[currentState];
+            const storyText = content.text || content;
+            document.getElementById("story").innerHTML = `<p>${storyText}</p>`;
+
+            const buttons = document.querySelectorAll(".button");
+            buttons.forEach(button => button.style.display = "none");
+
+            if (content.choices) {
+                Object.keys(content.choices).forEach(choice => {
+                    const button = document.createElement("button");
+                    button.classList.add("button");
+                    button.innerHTML = content.choices[choice].text;
+                    button.onclick = () => nextChoice(choice);
+                    document.getElementById("game").appendChild(button);
+                });
+            }
+        }
+
+        function endGame() {
+            document.getElementById("game").innerHTML = "<p>Спасибо за игру!</p>";
+        }
+
+        updateStory();
+    </script>
+</body>
+</html>
